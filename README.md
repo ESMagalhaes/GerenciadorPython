@@ -58,7 +58,19 @@ project/
 └── README.md                   
 ```
 ## 🗂️- Estrutura do Projeto
-A adicionar
+A arquitetura da API foi organizada seguindo boas práticas de modularização e responsabilidade única, facilitando manutenção, escalabilidade e testes.
+Abaixo está a descrição de cada diretório e seu papel no projeto:
+
+```
+🗂️- app/
+Diretório principal onde está todo o código da aplicação.
+
+🗂️- core/
+Contém configurações essenciais da aplicação.
+
+- 📄- config.py — Centraliza as configurações do projeto (variáveis de ambiente, constantes…).
+- 📄- security.py — Implementa a lógica de segurança, como hashing de senhas e geração/validação de tokens JWT.
+```
 ## 🖥️- Desenvolvimento do Projeto
 A adicionar
 ## 🎛️- Como Utilizar a API
