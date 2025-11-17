@@ -1,40 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
-from app.database.models import User
 from app.schemas.user import UserCreate
-from app.core.security import hash_password, verify_password, create_access_token
+from app.core.security import create_access_token
+from app.services.user_service import UserService
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
-    # Verifica se email já existe
-    exists = db.query(User).filter(User.email == user.email).first()
-    if exists:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    new_user = User(
-        email=user.email,
-        hashed_password=hash_password(user.password)
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return {"message": "User created successfully"}
+    new_user = UserService.create_user(user, db)
+    return {"message": "User created successfully", "user_id": new_user.id}
 
 
 @router.post("/login")
 def login(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
+    authenticated_user = UserService.authenticate(
+        user.email, user.password, db)
 
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    token = create_access_token({"sub": db_user.email})
+    token = create_access_token({"sub": authenticated_user.email})
 
     return {"access_token": token, "token_type": "bearer"}
